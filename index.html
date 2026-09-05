@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trámites Ecuador - Acceso Rápido Oficial</title>
+
+  <!-- Soporte PWA y Favicons -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Trámites EC">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/9444/9444315.png">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trámites Ecuador - Acceso Rápido Oficial</title>
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="apple-touch-icon" href="./icon.svg">
+
   <style>
     :root {
       --bg: #0f172a;
@@ -216,14 +220,15 @@
 <body>
 
   <div class="container">
-<header>
-  <img src="./icon.svg" alt="Logo Trámites EC" style="width: 64px; height: 64px; margin: 0 auto 0.8rem auto; display: block; border-radius: 16px;">
-  <h1>Portal de Trámites Rápidos EC</h1>
-  <p>Enlaces oficiales directos y requisitos clave para ciudadanos en Ecuador.</p>
+    <header>
+      <img src="./icon.svg" alt="Logo Trámites EC" style="width: 64px; height: 64px; margin: 0 auto 0.8rem auto; display: block; border-radius: 16px;">
+      <h1>Portal de Trámites Rápidos EC</h1>
+      <p>Enlaces oficiales directos y requisitos clave para ciudadanos en Ecuador.</p>
 
-  <a href="#" onclick="compartirWebCompleta(event)" class="header-share-btn">
-    <span>📲 Compartir este portal por WhatsApp</span>
-  </a>
+      <a href="#" onclick="compartirWebCompleta(event)" class="header-share-btn">
+        <span>📲 Compartir este portal por WhatsApp</span>
+      </a>
+    </header>
 
     <!-- Botones de Categorías -->
     <div class="categories">
@@ -516,6 +521,8 @@
       actualizarEstadoFavoritosUI();
     });
   </script>
+
+  <!-- Registro del Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -525,6 +532,5 @@
       });
     }
   </script>
-</body>
 </body>
 </html>
