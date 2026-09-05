@@ -22,6 +22,36 @@
     header h1 { font-size: 2rem; color: #fff; margin-bottom: 0.5rem; }
     header p { color: var(--text-muted); font-size: 1rem; }
 
+    /* Filtros por categoría */
+    .categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .cat-btn {
+      background: var(--card-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .cat-btn:hover {
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .cat-btn.active {
+      background: var(--accent);
+      color: #0f172a;
+      border-color: var(--accent);
+    }
+
+    /* Buscador */
     .search-box { margin-bottom: 2rem; }
     .search-box input {
       width: 100%;
@@ -35,6 +65,7 @@
     }
     .search-box input:focus { border-color: var(--accent); }
 
+    /* Grilla de trámites */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
     
     .card {
@@ -84,13 +115,22 @@
       <p>Enlaces directos a los servicios gubernamentales oficiales sin dar vueltas.</p>
     </header>
 
+    <div class="categories">
+      <button class="cat-btn active" onclick="filtrarPorCategoria('todos', this)">Todos</button>
+      <button class="cat-btn" onclick="filtrarPorCategoria('identificacion', this)">Identificación</button>
+      <button class="cat-btn" onclick="filtrarPorCategoria('tributario', this)">Tributario / SRI</button>
+      <button class="cat-btn" onclick="filtrarPorCategoria('transito', this)">Tránsito</button>
+      <button class="cat-btn" onclick="filtrarPorCategoria('salud-laboral', this)">Salud y Laboral</button>
+      <button class="cat-btn" onclick="filtrarPorCategoria('certificados', this)">Certificados</button>
+    </div>
+
     <div class="search-box">
-      <input type="text" id="buscador" placeholder="Buscar trámite (ej. cédula, ruc, multas, turnos)..." onkeyup="filtrarTramites()">
+      <input type="text" id="buscador" placeholder="Buscar trámite (ej. cédula, ruc, multas, turnos)..." onkeyup="aplicarFiltros()">
     </div>
 
     <div class="grid" id="contenedor-tramites">
       
-      <div class="card" data-tags="cedula pasaporte partidas matrimonio registro civil agencia virtual">
+      <div class="card" data-category="identificacion" data-tags="cedula pasaporte partidas matrimonio registro civil agencia virtual">
         <div>
           <div class="card-tag">Registro Civil</div>
           <h3>Turnos Cédula y Pasaporte</h3>
@@ -99,7 +139,7 @@
         <a href="https://apps.registrocivil.gob.ec/" target="_blank" rel="noopener" class="btn">Ir a la Agencia Virtual</a>
       </div>
 
-      <div class="card" data-tags="sri ruc facturacion impuestos rimpe declaraciones">
+      <div class="card" data-category="tributario" data-tags="sri ruc facturacion impuestos rimpe declaraciones tributario">
         <div>
           <div class="card-tag">SRI en Línea</div>
           <h3>Declaraciones y RUC</h3>
@@ -108,7 +148,7 @@
         <a href="https://srienlinea.sri.gob.ec/" target="_blank" rel="noopener" class="btn">Ingresar al SRI</a>
       </div>
 
-      <div class="card" data-tags="ant licencia puntos turnos conducir vehiculo multas">
+      <div class="card" data-category="transito" data-tags="ant licencia puntos turnos conducir vehiculo multas transito">
         <div>
           <div class="card-tag">ANT</div>
           <h3>Turnos para Licencias</h3>
@@ -117,7 +157,7 @@
         <a href="https://www.ant.gob.ec/" target="_blank" rel="noopener" class="btn">Ir a la ANT</a>
       </div>
 
-      <div class="card" data-tags="multas citaciones transito placa ant atm cte">
+      <div class="card" data-category="transito" data-tags="multas citaciones transito placa ant atm cte">
         <div>
           <div class="card-tag">Consulta de Multas</div>
           <h3>Puntos y Citaciones</h3>
@@ -126,7 +166,7 @@
         <a href="https://consultaweb.ant.gob.ec/PortalWEB/paginas/clientes/clp_cnsmultas.jsp" target="_blank" rel="noopener" class="btn">Consultar Infracciones</a>
       </div>
 
-      <div class="card" data-tags="iess citas medicas mecanizado cesantia seguro">
+      <div class="card" data-category="salud-laboral" data-tags="iess citas medicas mecanizado cesantia seguro laboral">
         <div>
           <div class="card-tag">IESS</div>
           <h3>Turnos Médicos y Mecanizado</h3>
@@ -135,7 +175,7 @@
         <a href="https://www.iess.gob.ec/" target="_blank" rel="noopener" class="btn">Portal del Afiliado</a>
       </div>
 
-      <div class="card" data-tags="policia antecedentes judiciales record policial trabajo">
+      <div class="card" data-category="certificados" data-tags="policia antecedentes judiciales record policial trabajo ministerio certificados">
         <div>
           <div class="card-tag">Ministerio del Interior</div>
           <h3>Certificado de Antecedentes</h3>
@@ -152,14 +192,37 @@
   </div>
 
   <script>
-    function filtrarTramites() {
-      const input = document.getElementById('buscador').value.toLowerCase();
+    let categoriaActiva = 'todos';
+
+    function filtrarPorCategoria(categoria, boton) {
+      categoriaActiva = categoria;
+      
+      // Actualizar estado visual de los botones
+      document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+      boton.classList.add('active');
+
+      aplicarFiltros();
+    }
+
+    function aplicarFiltros() {
+      const textoBuscador = document.getElementById('buscador').value.toLowerCase().trim();
       const cards = document.querySelectorAll('.card');
 
       cards.forEach(card => {
-        const texto = card.innerText.toLowerCase();
+        const categoriaCard = card.getAttribute('data-category');
+        const contenidoCard = card.innerText.toLowerCase();
         const tags = card.getAttribute('data-tags') || '';
-        if (texto.includes(input) || tags.includes(input)) {
+
+        // Comprobación de categoría
+        const coincideCategoria = (categoriaActiva === 'todos' || categoriaCard === categoriaActiva);
+        
+        // Comprobación de texto ingresado
+        const coincideBusqueda = textoBuscador === '' || 
+                                 contenidoCard.includes(textoBuscador) || 
+                                 tags.includes(textoBuscador);
+
+        // Mostrar solo si cumple ambas condiciones
+        if (coincideCategoria && coincideBusqueda) {
           card.style.display = 'flex';
         } else {
           card.style.display = 'none';
