@@ -12,10 +12,12 @@
       --text-muted: #94a3b8;
       --accent: #38bdf8;
       --accent-hover: #0284c7;
+      --whatsapp: #25d366;
+      --whatsapp-hover: #1ebd5a;
       --border: #334155;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 2rem 1rem; }
+    body { background-color: var(--bg); color: var(--text); padding: 2rem 1rem 5rem 1rem; }
     .container { max-width: 900px; margin: 0 auto; }
     
     header { text-align: center; margin-bottom: 2rem; }
@@ -66,7 +68,7 @@
     .search-box input:focus { border-color: var(--accent); }
 
     /* Grilla de trámites */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1rem; }
     
     .card {
       background: var(--card-bg);
@@ -90,20 +92,70 @@
     .card h3 { font-size: 1.15rem; margin-bottom: 0.4rem; }
     .card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1.2rem; }
     
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
     .btn {
-      display: inline-block;
+      flex: 1;
       text-align: center;
       background: var(--accent);
       color: #0f172a;
       text-decoration: none;
-      padding: 0.6rem 1rem;
+      padding: 0.6rem 0.8rem;
       border-radius: 6px;
       font-weight: 600;
       font-size: 0.85rem;
       transition: background 0.2s;
     }
     .btn:hover { background: var(--accent-hover); color: #fff; }
+
+    .btn-share {
+      background: rgba(37, 211, 102, 0.15);
+      color: var(--whatsapp);
+      border: 1px solid rgba(37, 211, 102, 0.3);
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .btn-share:hover {
+      background: var(--whatsapp);
+      color: #0f172a;
+    }
     
+    /* Botón flotante para compartir todo el portal */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background-color: var(--whatsapp);
+      color: #0f172a;
+      padding: 0.75rem 1.2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .whatsapp-float:hover {
+      background-color: var(--whatsapp-hover);
+      transform: scale(1.05);
+      color: #fff;
+    }
+
     footer { text-align: center; margin-top: 3rem; color: var(--text-muted); font-size: 0.8rem; }
   </style>
 </head>
@@ -115,73 +167,127 @@
       <p>Enlaces directos a los servicios gubernamentales oficiales sin dar vueltas.</p>
     </header>
 
+    <!-- Botones de Categorías -->
     <div class="categories">
       <button class="cat-btn active" onclick="filtrarPorCategoria('todos', this)">Todos</button>
       <button class="cat-btn" onclick="filtrarPorCategoria('identificacion', this)">Identificación</button>
       <button class="cat-btn" onclick="filtrarPorCategoria('tributario', this)">Tributario / SRI</button>
-      <button class="cat-btn" onclick="filtrarPorCategoria('transito', this)">Tránsito</button>
+      <button class="cat-btn" onclick="filtrarPorCategoria('transito', this)">Tránsito & Vehículos</button>
+      <button class="cat-btn" onclick="filtrarPorCategoria('servicios', this)">Servicios Básicos</button>
       <button class="cat-btn" onclick="filtrarPorCategoria('salud-laboral', this)">Salud y Laboral</button>
       <button class="cat-btn" onclick="filtrarPorCategoria('certificados', this)">Certificados</button>
     </div>
 
+    <!-- Buscador -->
     <div class="search-box">
-      <input type="text" id="buscador" placeholder="Buscar trámite (ej. cédula, ruc, multas, turnos)..." onkeyup="aplicarFiltros()">
+      <input type="text" id="buscador" placeholder="Buscar trámite (ej. planilla luz, cédula, ruc, multas, matrícula)..." onkeyup="aplicarFiltros()">
     </div>
 
+    <!-- Contenedor de Tarjetas -->
     <div class="grid" id="contenedor-tramites">
       
-      <div class="card" data-category="identificacion" data-tags="cedula pasaporte partidas matrimonio registro civil agencia virtual">
+      <!-- Registro Civil -->
+      <div class="card" data-category="identificacion" data-tags="cedula pasaporte partidas matrimonio registro civil agencia virtual turnos">
         <div>
           <div class="card-tag">Registro Civil</div>
           <h3>Turnos Cédula y Pasaporte</h3>
-          <p>Agendamiento de citas presenciales para emisión y renovación de documentos.</p>
+          <p>Agendamiento de citas presenciales para emisión y renovación de documentos de identidad.</p>
         </div>
-        <a href="https://apps.registrocivil.gob.ec/" target="_blank" rel="noopener" class="btn">Ir a la Agencia Virtual</a>
+        <div class="card-actions">
+          <a href="https://apps.registrocivil.gob.ec/" target="_blank" rel="noopener" class="btn">Agencia Virtual</a>
+          <a href="#" onclick="compartirTramite(event, 'Turnos de Cédula y Pasaporte', 'https://apps.registrocivil.gob.ec/')" class="btn-share" title="Compartir">WA</a>
+        </div>
       </div>
 
+      <!-- SRI Declaraciones -->
       <div class="card" data-category="tributario" data-tags="sri ruc facturacion impuestos rimpe declaraciones tributario">
         <div>
           <div class="card-tag">SRI en Línea</div>
           <h3>Declaraciones y RUC</h3>
           <p>Acceso directo al portal tributario para RIMPE, facturas electrónicas y consulta de RUC.</p>
         </div>
-        <a href="https://srienlinea.sri.gob.ec/" target="_blank" rel="noopener" class="btn">Ingresar al SRI</a>
+        <div class="card-actions">
+          <a href="https://srienlinea.sri.gob.ec/" target="_blank" rel="noopener" class="btn">Ingresar al SRI</a>
+          <a href="#" onclick="compartirTramite(event, 'Portal del SRI en Línea', 'https://srienlinea.sri.gob.ec/')" class="btn-share" title="Compartir">WA</a>
+        </div>
       </div>
 
+      <!-- Matrícula SRI -->
+      <div class="card" data-category="transito" data-tags="matricula vehicular sri valores a pagar ant revision auto placa">
+        <div>
+          <div class="card-tag">SRI / Tránsito</div>
+          <h3>Valores Matrícula Vehicular</h3>
+          <p>Consulta cuánto debes pagar de matrícula e impuestos de tu vehículo solo con la placa.</p>
+        </div>
+        <div class="card-actions">
+          <a href="https://srienlinea.sri.gob.ec/sri-en-linea/SriVehiculosWeb/ConsultaValoresPagarVehiculo/Consultas/consultaRubros" target="_blank" rel="noopener" class="btn">Consultar Matrícula</a>
+          <a href="#" onclick="compartirTramite(event, 'Consulta de Valores de Matrícula', 'https://srienlinea.sri.gob.ec/sri-en-linea/SriVehiculosWeb/ConsultaValoresPagarVehiculo/Consultas/consultaRubros')" class="btn-share" title="Compartir">WA</a>
+        </div>
+      </div>
+
+      <!-- Tránsito ANT Turnos -->
       <div class="card" data-category="transito" data-tags="ant licencia puntos turnos conducir vehiculo multas transito">
         <div>
           <div class="card-tag">ANT</div>
           <h3>Turnos para Licencias</h3>
           <p>Generación de orden de pago y agendamiento de turnos para licencias por primera vez o renovación.</p>
         </div>
-        <a href="https://www.ant.gob.ec/" target="_blank" rel="noopener" class="btn">Ir a la ANT</a>
+        <div class="card-actions">
+          <a href="https://www.ant.gob.ec/" target="_blank" rel="noopener" class="btn">Ir a la ANT</a>
+          <a href="#" onclick="compartirTramite(event, 'Turnos de Licencia ANT', 'https://www.ant.gob.ec/')" class="btn-share" title="Compartir">WA</a>
+        </div>
       </div>
 
-      <div class="card" data-category="transito" data-tags="multas citaciones transito placa ant atm cte">
+      <!-- Tránsito Multas -->
+      <div class="card" data-category="transito" data-tags="multas citaciones transito placa ant atm cte puntos">
         <div>
           <div class="card-tag">Consulta de Multas</div>
           <h3>Puntos y Citaciones</h3>
           <p>Consulta el historial de infracciones y puntos restantes de tu licencia a nivel nacional.</p>
         </div>
-        <a href="https://consultaweb.ant.gob.ec/PortalWEB/paginas/clientes/clp_cnsmultas.jsp" target="_blank" rel="noopener" class="btn">Consultar Infracciones</a>
+        <div class="card-actions">
+          <a href="https://consultaweb.ant.gob.ec/PortalWEB/paginas/clientes/clp_cnsmultas.jsp" target="_blank" rel="noopener" class="btn">Consultar Multas</a>
+          <a href="#" onclick="compartirTramite(event, 'Consulta de Multas de Tránsito', 'https://consultaweb.ant.gob.ec/PortalWEB/paginas/clientes/clp_cnsmultas.jsp')" class="btn-share" title="Compartir">WA</a>
+        </div>
       </div>
 
+      <!-- Planillas de Luz CNEL -->
+      <div class="card" data-category="servicios" data-tags="cnel planilla luz agua electricidad cuen factura pago saldo">
+        <div>
+          <div class="card-tag">CNEL EP</div>
+          <h3>Planillas de Luz</h3>
+          <p>Consulta tus planillas y valores pendientes de pago con tu cédula o código único CUEN.</p>
+        </div>
+        <div class="card-actions">
+          <a href="https://serviciosenlinea.cnelep.gob.ec/consulta-cuen/" target="_blank" rel="noopener" class="btn">Consultar Planilla</a>
+          <a href="#" onclick="compartirTramite(event, 'Consulta de Planilla CNEL', 'https://serviciosenlinea.cnelep.gob.ec/consulta-cuen/')" class="btn-share" title="Compartir">WA</a>
+        </div>
+      </div>
+
+      <!-- IESS -->
       <div class="card" data-category="salud-laboral" data-tags="iess citas medicas mecanizado cesantia seguro laboral">
         <div>
           <div class="card-tag">IESS</div>
           <h3>Turnos Médicos y Mecanizado</h3>
           <p>Portal del afiliado para descargar historial laboral o agendar citas en línea.</p>
         </div>
-        <a href="https://www.iess.gob.ec/" target="_blank" rel="noopener" class="btn">Portal del Afiliado</a>
+        <div class="card-actions">
+          <a href="https://www.iess.gob.ec/" target="_blank" rel="noopener" class="btn">Portal del Afiliado</a>
+          <a href="#" onclick="compartirTramite(event, 'Portal Afiliado IESS', 'https://www.iess.gob.ec/')" class="btn-share" title="Compartir">WA</a>
+        </div>
       </div>
 
+      <!-- Certificado de Antecedentes -->
       <div class="card" data-category="certificados" data-tags="policia antecedentes judiciales record policial trabajo ministerio certificados">
         <div>
           <div class="card-tag">Ministerio del Interior</div>
           <h3>Certificado de Antecedentes</h3>
           <p>Descarga gratuita inmediata del récord policial oficial en formato PDF firmado digitalmente.</p>
         </div>
-        <a href="https://certificados.ministeriodelinterior.gob.ec/gestorcertificados/antecedentes/" target="_blank" rel="noopener" class="btn">Descargar Certificado</a>
+        <div class="card-actions">
+          <a href="https://certificados.ministeriodelinterior.gob.ec/gestorcertificados/antecedentes/" target="_blank" rel="noopener" class="btn">Descargar Récord</a>
+          <a href="#" onclick="compartirTramite(event, 'Récord Policial Gratuito', 'https://certificados.ministeriodelinterior.gob.ec/gestorcertificados/antecedentes/')" class="btn-share" title="Compartir">WA</a>
+        </div>
       </div>
 
     </div>
@@ -191,16 +297,18 @@
     </footer>
   </div>
 
+  <!-- Botón Flotante Global de WhatsApp -->
+  <a href="#" onclick="compartirWebCompleta(event)" class="whatsapp-float">
+    <span>📲 Compartir Portal</span>
+  </a>
+
   <script>
     let categoriaActiva = 'todos';
 
     function filtrarPorCategoria(categoria, boton) {
       categoriaActiva = categoria;
-      
-      // Actualizar estado visual de los botones
       document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
       boton.classList.add('active');
-
       aplicarFiltros();
     }
 
@@ -213,21 +321,31 @@
         const contenidoCard = card.innerText.toLowerCase();
         const tags = card.getAttribute('data-tags') || '';
 
-        // Comprobación de categoría
         const coincideCategoria = (categoriaActiva === 'todos' || categoriaCard === categoriaActiva);
-        
-        // Comprobación de texto ingresado
         const coincideBusqueda = textoBuscador === '' || 
                                  contenidoCard.includes(textoBuscador) || 
                                  tags.includes(textoBuscador);
 
-        // Mostrar solo si cumple ambas condiciones
         if (coincideCategoria && coincideBusqueda) {
           card.style.display = 'flex';
         } else {
           card.style.display = 'none';
         }
       });
+    }
+
+    // Funciones para WhatsApp
+    function compartirTramite(e, nombreTramite, urlTramite) {
+      e.preventDefault();
+      const mensaje = `Hola! Te paso el enlace directo oficial para el trámite de *${nombreTramite}* en Ecuador: ${urlTramite}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
+    }
+
+    function compartirWebCompleta(e) {
+      e.preventDefault();
+      const urlActual = window.location.href;
+      const mensaje = `🇪🇨 Te comparto este Portal de Trámites Rápidos de Ecuador. Tiene enlaces directos al Registro Civil, SRI, ANT, planillas de luz y más: ${urlActual}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
     }
   </script>
 </body>
