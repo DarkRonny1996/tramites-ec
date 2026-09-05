@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <rect width="512" height="512" rx="110" fill="#0f172a"/>
+  
+  <!-- Borde exterior sutil -->
+  <rect x="16" y="16" width="480" height="480" rx="94" fill="none" stroke="#334155" stroke-width="12"/>
+
+  <!-- Silueta de credencial / documento -->
+  <rect x="120" y="90" width="272" height="332" rx="28" fill="#1e293b" stroke="#38bdf8" stroke-width="14"/>
+
+  <!-- Tricolor Ecuador estilizada en la cabecera del documento -->
+  <path d="M 140 130 L 372 130" stroke="#facc15" stroke-width="16" stroke-linecap="round"/>
+  <path d="M 140 156 L 372 156" stroke="#0284c7" stroke-width="12" stroke-linecap="round"/>
+  <path d="M 140 178 L 372 178" stroke="#ef4444" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Líneas simulando datos oficiales -->
+  <rect x="150" y="225" width="130" height="14" rx="7" fill="#94a3b8"/>
+  <rect x="150" y="255" width="210" height="12" rx="6" fill="#334155"/>
+  <rect x="150" y="280" width="180" height="12" rx="6" fill="#334155"/>
+
+  <!-- Sello de verificación digital / check -->
+  <circle cx="320" cy="350" r="34" fill="#38bdf8"/>
+  <path d="M 306 350 L 316 360 L 336 340" fill="none" stroke="#0f172a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
