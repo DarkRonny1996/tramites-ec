@@ -15,16 +15,17 @@
       --whatsapp: #25d366;
       --whatsapp-hover: #1ebd5a;
       --border: #334155;
+      --badge-bg: #0b1329;
+      --star-active: #facc15;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { background-color: var(--bg); color: var(--text); padding: 2rem 1rem 4rem 1rem; }
-    .container { max-width: 900px; margin: 0 auto; }
+    .container { max-width: 920px; margin: 0 auto; }
     
     header { text-align: center; margin-bottom: 2rem; }
     header h1 { font-size: 2rem; color: #fff; margin-bottom: 0.5rem; }
     header p { color: var(--text-muted); font-size: 1rem; margin-bottom: 1.2rem; }
 
-    /* Botón de compartir en el encabezado */
     .header-share-btn {
       display: inline-flex;
       align-items: center;
@@ -45,7 +46,7 @@
       transform: translateY(-2px);
     }
 
-    /* Filtros por categoría */
+    /* Categorías */
     .categories {
       display: flex;
       flex-wrap: wrap;
@@ -74,11 +75,15 @@
       border-color: var(--accent);
     }
 
-    /* Buscador */
-    .search-box { margin-bottom: 2rem; }
+    /* Buscador con atajo */
+    .search-container {
+      position: relative;
+      margin-bottom: 2rem;
+    }
     .search-box input {
       width: 100%;
       padding: 0.9rem 1.2rem;
+      padding-right: 3rem;
       border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--card-bg);
@@ -87,6 +92,19 @@
       outline: none;
     }
     .search-box input:focus { border-color: var(--accent); }
+    .kbd-shortcut {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--border);
+      color: var(--text-muted);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      pointer-events: none;
+    }
 
     /* Grilla de trámites */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1rem; }
@@ -99,20 +117,54 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      position: relative;
       transition: transform 0.2s, border-color 0.2s;
     }
     .card:hover { transform: translateY(-3px); border-color: var(--accent); }
     
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
     .card-tag {
       font-size: 0.75rem;
       text-transform: uppercase;
       font-weight: 700;
       color: var(--accent);
-      margin-bottom: 0.5rem;
     }
+    .fav-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      transition: transform 0.15s;
+    }
+    .fav-btn:hover { transform: scale(1.2); }
+    .fav-btn.is-fav { color: var(--star-active); }
+
     .card h3 { font-size: 1.15rem; margin-bottom: 0.4rem; }
-    .card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1.2rem; }
+    .card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 0.8rem; }
     
+    /* Metadatos rápidos */
+    .meta-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.2rem;
+    }
+    .meta-badge {
+      background: var(--badge-bg);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      font-size: 0.72rem;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
     .card-actions {
       display: flex;
       gap: 0.5rem;
@@ -160,9 +212,8 @@
   <div class="container">
     <header>
       <h1>Portal de Trámites Rápidos EC</h1>
-      <p>Enlaces directos a los servicios gubernamentales oficiales sin dar vueltas.</p>
+      <p>Enlaces oficiales directos y requisitos clave para ciudadanos en Ecuador.</p>
       
-      <!-- Botón de compartir en cabecera libre de bloqueos -->
       <a href="#" onclick="compartirWebCompleta(event)" class="header-share-btn">
         <span>📲 Compartir este portal por WhatsApp</span>
       </a>
@@ -171,6 +222,7 @@
     <!-- Botones de Categorías -->
     <div class="categories">
       <button class="cat-btn active" onclick="filtrarPorCategoria('todos', this)">Todos</button>
+      <button class="cat-btn" onclick="filtrarPorCategoria('favoritos', this)">⭐ Guardados</button>
       <button class="cat-btn" onclick="filtrarPorCategoria('identificacion', this)">Identificación</button>
       <button class="cat-btn" onclick="filtrarPorCategoria('tributario', this)">Tributario / SRI</button>
       <button class="cat-btn" onclick="filtrarPorCategoria('transito', this)">Tránsito & Vehículos</button>
@@ -179,33 +231,48 @@
       <button class="cat-btn" onclick="filtrarPorCategoria('certificados', this)">Certificados</button>
     </div>
 
-    <!-- Buscador -->
-    <div class="search-box">
-      <input type="text" id="buscador" placeholder="Buscar trámite (ej. planilla luz, cédula, ruc, multas, matrícula)..." onkeyup="aplicarFiltros()">
+    <!-- Buscador con atajo de teclado -->
+    <div class="search-container search-box">
+      <input type="text" id="buscador" placeholder="Buscar trámite (ej. planilla luz, cédula, multas)..." onkeyup="aplicarFiltros()">
+      <span class="kbd-shortcut">Presiona /</span>
     </div>
 
     <!-- Contenedor de Tarjetas -->
     <div class="grid" id="contenedor-tramites">
       
-      <!-- Registro Civil -->
-      <div class="card" data-category="identificacion" data-tags="cedula pasaporte partidas matrimonio registro civil agencia virtual turnos">
+      <!-- Cédula y Pasaporte -->
+      <div class="card" id="tramite-cedula" data-category="identificacion" data-tags="cedula pasaporte partidas registro civil turnos">
         <div>
-          <div class="card-tag">Registro Civil</div>
+          <div class="card-top">
+            <span class="card-tag">Registro Civil</span>
+            <button class="fav-btn" onclick="toggleFav('tramite-cedula')">★</button>
+          </div>
           <h3>Turnos Cédula y Pasaporte</h3>
           <p>Agendamiento de citas presenciales para emisión y renovación de documentos de identidad.</p>
+          <div class="meta-info">
+            <span class="meta-badge">💵 Renovación $16 / $90</span>
+            <span class="meta-badge">⏱ Requiere turno previo</span>
+          </div>
         </div>
         <div class="card-actions">
           <a href="https://apps.registrocivil.gob.ec/" target="_blank" rel="noopener" class="btn">Agencia Virtual</a>
-          <a href="#" onclick="compartirTramite(event, 'Turnos de Cédula y Pasaporte', 'https://apps.registrocivil.gob.ec/')" class="btn-share" title="Compartir">WA</a>
+          <a href="#" onclick="compartirTramite(event, 'Turnos Cédula y Pasaporte', 'https://apps.registrocivil.gob.ec/')" class="btn-share" title="Compartir">WA</a>
         </div>
       </div>
 
       <!-- SRI Declaraciones -->
-      <div class="card" data-category="tributario" data-tags="sri ruc facturacion impuestos rimpe declaraciones tributario">
+      <div class="card" id="tramite-sri" data-category="tributario" data-tags="sri ruc facturacion impuestos rimpe declaraciones tributario">
         <div>
-          <div class="card-tag">SRI en Línea</div>
+          <div class="card-top">
+            <span class="card-tag">SRI en Línea</span>
+            <button class="fav-btn" onclick="toggleFav('tramite-sri')">★</button>
+          </div>
           <h3>Declaraciones y RUC</h3>
           <p>Acceso directo al portal tributario para RIMPE, facturas electrónicas y consulta de RUC.</p>
+          <div class="meta-info">
+            <span class="meta-badge">💵 Trámite Gratuito</span>
+            <span class="meta-badge">⚡ 100% En línea</span>
+          </div>
         </div>
         <div class="card-actions">
           <a href="https://srienlinea.sri.gob.ec/" target="_blank" rel="noopener" class="btn">Ingresar al SRI</a>
@@ -214,24 +281,38 @@
       </div>
 
       <!-- Matrícula SRI -->
-      <div class="card" data-category="transito" data-tags="matricula vehicular sri valores a pagar ant revision auto placa">
+      <div class="card" id="tramite-matricula" data-category="transito" data-tags="matricula vehicular sri valores a pagar ant revision auto placa">
         <div>
-          <div class="card-tag">SRI / Tránsito</div>
+          <div class="card-top">
+            <span class="card-tag">SRI / Tránsito</span>
+            <button class="fav-btn" onclick="toggleFav('tramite-matricula')">★</button>
+          </div>
           <h3>Valores Matrícula Vehicular</h3>
           <p>Consulta cuánto debes pagar de matrícula e impuestos de tu vehículo solo con la placa.</p>
+          <div class="meta-info">
+            <span class="meta-badge">💵 Solo consulta</span>
+            <span class="meta-badge">⚡ Solo necesitas la placa</span>
+          </div>
         </div>
         <div class="card-actions">
           <a href="https://srienlinea.sri.gob.ec/sri-en-linea/SriVehiculosWeb/ConsultaValoresPagarVehiculo/Consultas/consultaRubros" target="_blank" rel="noopener" class="btn">Consultar Matrícula</a>
-          <a href="#" onclick="compartirTramite(event, 'Consulta de Valores de Matrícula', 'https://srienlinea.sri.gob.ec/sri-en-linea/SriVehiculosWeb/ConsultaValoresPagarVehiculo/Consultas/consultaRubros')" class="btn-share" title="Compartir">WA</a>
+          <a href="#" onclick="compartirTramite(event, 'Consulta de Matrícula', 'https://srienlinea.sri.gob.ec/sri-en-linea/SriVehiculosWeb/ConsultaValoresPagarVehiculo/Consultas/consultaRubros')" class="btn-share" title="Compartir">WA</a>
         </div>
       </div>
 
-      <!-- Tránsito ANT Turnos -->
-      <div class="card" data-category="transito" data-tags="ant licencia puntos turnos conducir vehiculo multas transito">
+      <!-- ANT Licencias -->
+      <div class="card" id="tramite-licencia" data-category="transito" data-tags="ant licencia puntos turnos conducir vehiculo multas transito">
         <div>
-          <div class="card-tag">ANT</div>
+          <div class="card-top">
+            <span class="card-tag">ANT</span>
+            <button class="fav-btn" onclick="toggleFav('tramite-licencia')">★</button>
+          </div>
           <h3>Turnos para Licencias</h3>
           <p>Generación de orden de pago y agendamiento de turnos para licencias por primera vez o renovación.</p>
+          <div class="meta-info">
+            <span class="meta-badge">💵 Renovación $68</span>
+            <span class="meta-badge">⏱ Requiere turno pagado</span>
+          </div>
         </div>
         <div class="card-actions">
           <a href="https://www.ant.gob.ec/" target="_blank" rel="noopener" class="btn">Ir a la ANT</a>
@@ -239,55 +320,83 @@
         </div>
       </div>
 
-      <!-- Tránsito Multas -->
-      <div class="card" data-category="transito" data-tags="multas citaciones transito placa ant atm cte puntos">
+      <!-- Multas ANT -->
+      <div class="card" id="tramite-multas" data-category="transito" data-tags="multas citaciones transito placa ant atm cte puntos">
         <div>
-          <div class="card-tag">Consulta de Multas</div>
+          <div class="card-top">
+            <span class="card-tag">Consulta de Multas</span>
+            <button class="fav-btn" onclick="toggleFav('tramite-multas')">★</button>
+          </div>
           <h3>Puntos y Citaciones</h3>
           <p>Consulta el historial de infracciones y puntos restantes de tu licencia a nivel nacional.</p>
+          <div class="meta-info">
+            <span class="meta-badge">💵 Gratuito</span>
+            <span class="meta-badge">⚡ Consulta con cédula o placa</span>
+          </div>
         </div>
         <div class="card-actions">
           <a href="https://consultaweb.ant.gob.ec/PortalWEB/paginas/clientes/clp_cnsmultas.jsp" target="_blank" rel="noopener" class="btn">Consultar Multas</a>
-          <a href="#" onclick="compartirTramite(event, 'Consulta de Multas de Tránsito', 'https://consultaweb.ant.gob.ec/PortalWEB/paginas/clientes/clp_cnsmultas.jsp')" class="btn-share" title="Compartir">WA</a>
+          <a href="#" onclick="compartirTramite(event, 'Consulta de Multas', 'https://consultaweb.ant.gob.ec/PortalWEB/paginas/clientes/clp_cnsmultas.jsp')" class="btn-share" title="Compartir">WA</a>
         </div>
       </div>
 
-      <!-- Planillas de Luz CNEL -->
-      <div class="card" data-category="servicios" data-tags="cnel planilla luz agua electricidad cuen factura pago saldo">
+      <!-- Planillas CNEL -->
+      <div class="card" id="tramite-cnel" data-category="servicios" data-tags="cnel planilla luz agua electricidad cuen factura pago saldo">
         <div>
-          <div class="card-tag">CNEL EP</div>
+          <div class="card-top">
+            <span class="card-tag">CNEL EP</span>
+            <button class="fav-btn" onclick="toggleFav('tramite-cnel')">★</button>
+          </div>
           <h3>Planillas de Luz</h3>
           <p>Consulta tus planillas y valores pendientes de pago con tu cédula o código único CUEN.</p>
+          <div class="meta-info">
+            <span class="meta-badge">💵 Gratuito</span>
+            <span class="meta-badge">⚡ Consulta con Cédula o CUEN</span>
+          </div>
         </div>
         <div class="card-actions">
           <a href="https://serviciosenlinea.cnelep.gob.ec/consulta-cuen/" target="_blank" rel="noopener" class="btn">Consultar Planilla</a>
-          <a href="#" onclick="compartirTramite(event, 'Consulta de Planilla CNEL', 'https://serviciosenlinea.cnelep.gob.ec/consulta-cuen/')" class="btn-share" title="Compartir">WA</a>
+          <a href="#" onclick="compartirTramite(event, 'Planilla CNEL', 'https://serviciosenlinea.cnelep.gob.ec/consulta-cuen/')" class="btn-share" title="Compartir">WA</a>
         </div>
       </div>
 
       <!-- IESS -->
-      <div class="card" data-category="salud-laboral" data-tags="iess citas medicas mecanizado cesantia seguro laboral">
+      <div class="card" id="tramite-iess" data-category="salud-laboral" data-tags="iess citas medicas mecanizado cesantia seguro laboral">
         <div>
-          <div class="card-tag">IESS</div>
+          <div class="card-top">
+            <span class="card-tag">IESS</span>
+            <button class="fav-btn" onclick="toggleFav('tramite-iess')">★</button>
+          </div>
           <h3>Turnos Médicos y Mecanizado</h3>
           <p>Portal del afiliado para descargar historial laboral o agendar citas en línea.</p>
+          <div class="meta-info">
+            <span class="meta-badge">💵 Servicio Afiliados</span>
+            <span class="meta-badge">⚡ Requiere clave IESS</span>
+          </div>
         </div>
         <div class="card-actions">
-          <a href="https://www.iess.gob.ec/" target="_blank" rel="noopener" class="btn">Portal del Afiliado</a>
-          <a href="#" onclick="compartirTramite(event, 'Portal Afiliado IESS', 'https://www.iess.gob.ec/')" class="btn-share" title="Compartir">WA</a>
+          <a href="https://www.iess.gob.ec/" target="_blank" rel="noopener" class="btn">Portal Afiliado</a>
+          <a href="#" onclick="compartirTramite(event, 'Portal IESS', 'https://www.iess.gob.ec/')" class="btn-share" title="Compartir">WA</a>
         </div>
       </div>
 
-      <!-- Certificado de Antecedentes -->
-      <div class="card" data-category="certificados" data-tags="policia antecedentes judiciales record policial trabajo ministerio certificados">
+      <!-- Récord Policial -->
+      <div class="card" id="tramite-record" data-category="certificados" data-tags="policia antecedentes judiciales record policial trabajo ministerio">
         <div>
-          <div class="card-tag">Ministerio del Interior</div>
+          <div class="card-top">
+            <span class="card-tag">Ministerio del Interior</span>
+            <button class="fav-btn" onclick="toggleFav('tramite-record')">★</button>
+          </div>
           <h3>Certificado de Antecedentes</h3>
-          <p>Descarga gratuita inmediata del récord policial oficial en formato PDF firmado digitalmente.</p>
+          <p>Descarga gratuita inmediata del récord policial oficial en PDF firmado digitalmente.</p>
+          <div class="meta-info">
+            <span class="meta-badge">💵 Gratuito</span>
+            <span class="meta-badge">⚡ PDF oficial al instante</span>
+          </div>
         </div>
         <div class="card-actions">
           <a href="https://certificados.ministeriodelinterior.gob.ec/gestorcertificados/antecedentes/" target="_blank" rel="noopener" class="btn">Descargar Récord</a>
-          <a href="#" onclick="compartirTramite(event, 'Récord Policial Gratuito', 'https://certificados.ministeriodelinterior.gob.ec/gestorcertificados/antecedentes/')" class="btn-share" title="Compartir">WA</a>
+          <a href="#" onclick="compartirTramite(event, 'Récord Policial', 'https://certificados.ministeriodelinterior.gob.ec/gestorcertificados/antecedentes/')" class="btn-share" title="Compartir">WA</a>
         </div>
       </div>
 
@@ -301,6 +410,37 @@
   <script>
     let categoriaActiva = 'todos';
 
+    // Manejo de Favoritos con localStorage
+    function obtenerFavoritos() {
+      return JSON.parse(localStorage.getItem('tramites_favs') || '[]');
+    }
+
+    function toggleFav(id) {
+      let favs = obtenerFavoritos();
+      if (favs.includes(id)) {
+        favs = favs.filter(f => f !== id);
+      } else {
+        favs.push(id);
+      }
+      localStorage.setItem('tramites_favs', JSON.stringify(favs));
+      actualizarEstadoFavoritosUI();
+      aplicarFiltros();
+    }
+
+    function actualizarEstadoFavoritosUI() {
+      const favs = obtenerFavoritos();
+      document.querySelectorAll('.card').forEach(card => {
+        const id = card.id;
+        const btn = card.querySelector('.fav-btn');
+        if (favs.includes(id)) {
+          btn.classList.add('is-fav');
+        } else {
+          btn.classList.remove('is-fav');
+        }
+      });
+    }
+
+    // Filtrado
     function filtrarPorCategoria(categoria, boton) {
       categoriaActiva = categoria;
       document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
@@ -311,13 +451,24 @@
     function aplicarFiltros() {
       const textoBuscador = document.getElementById('buscador').value.toLowerCase().trim();
       const cards = document.querySelectorAll('.card');
+      const favs = obtenerFavoritos();
 
       cards.forEach(card => {
+        const id = card.id;
         const categoriaCard = card.getAttribute('data-category');
         const contenidoCard = card.innerText.toLowerCase();
         const tags = card.getAttribute('data-tags') || '';
 
-        const coincideCategoria = (categoriaActiva === 'todos' || categoriaCard === categoriaActiva);
+        // Condición por categoría o favoritos
+        let coincideCategoria = false;
+        if (categoriaActiva === 'todos') {
+          coincideCategoria = true;
+        } else if (categoriaActiva === 'favoritos') {
+          coincideCategoria = favs.includes(id);
+        } else {
+          coincideCategoria = (categoriaCard === categoriaActiva);
+        }
+
         const coincideBusqueda = textoBuscador === '' || 
                                  contenidoCard.includes(textoBuscador) || 
                                  tags.includes(textoBuscador);
@@ -330,6 +481,17 @@
       });
     }
 
+    // Atajo de teclado: presionar '/' para enfocar el buscador
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement.id !== 'buscador') {
+        e.preventDefault();
+        const input = document.getElementById('buscador');
+        input.focus();
+        input.select();
+      }
+    });
+
+    // Compartir por WhatsApp
     function compartirTramite(e, nombreTramite, urlTramite) {
       e.preventDefault();
       const mensaje = `Hola! Te paso el enlace directo oficial para el trámite de *${nombreTramite}* en Ecuador: ${urlTramite}`;
@@ -339,9 +501,14 @@
     function compartirWebCompleta(e) {
       e.preventDefault();
       const urlActual = window.location.href;
-      const mensaje = `🇪🇨 Te comparto este Portal de Trámites Rápidos de Ecuador. Tiene enlaces directos al Registro Civil, SRI, ANT, planillas de luz y más: ${urlActual}`;
+      const mensaje = `🇪🇨 Te comparto este Portal de Trámites Rápidos de Ecuador. Tiene enlaces directos y requisitos del Registro Civil, SRI, ANT, planillas de luz y más: ${urlActual}`;
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
     }
+
+    // Inicialización al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+      actualizarEstadoFavoritosUI();
+    });
   </script>
 </body>
 </html>
