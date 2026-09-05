@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tramites-ec-v1';
+const CACHE_NAME = 'tramites-ec-v2';
 const ASSETS = [
   './',
   './index.html',
